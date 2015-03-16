@@ -337,4 +337,27 @@ class TransifexAPI(object):
         url = '%s/projects/' % (self._base_api_url)
         response = requests.get(url, auth=self._auth)
         return response.status_code == requests.codes['OK']
+    
+    def list_project_languages(self, project_slug):
+        """
+        List all the languages available for a given project
         
+        @param project_slug
+            The project slug
+            
+        @returns list
+            The language codes which this project has translations for
+
+        @raises `TransifexAPIException`
+        """
+        url = '%s/project/%s/languages/' % (
+            self._base_api_url, project_slug
+        )
+        response = requests.get(url, auth=self._auth)
+        
+        if response.status_code != requests.codes['OK']:
+            raise TransifexAPIException(response)
+        
+        content = json.loads(response.content)
+        languages = [ language['language_code'] for language in content ]
+        return languages
